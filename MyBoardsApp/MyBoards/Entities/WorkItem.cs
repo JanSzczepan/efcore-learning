@@ -12,11 +12,11 @@ public class WorkItem
     public DateTime? EndDate { get; set; }
 
     // Issue
-    public decimal Efford { get; set; }
+    public decimal Effort { get; set; }
 
     // Task
     public string Activity { get; set; }
-    public decimal RemaningWork { get; set; }
+    public decimal RemainingWork { get; set; }
 
     public string Type { get; set; }
 }
