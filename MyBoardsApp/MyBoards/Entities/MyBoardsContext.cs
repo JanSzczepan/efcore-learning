@@ -5,6 +5,9 @@ namespace MyBoards.Entities;
 public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbContext(options)
 {
     public DbSet<WorkItem> WorkItems { get; set; }
+    public DbSet<Issue> Issues { get; set; }
+    public DbSet<Epic> Epics { get; set; }
+    public DbSet<Task> Tasks { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Comment> Comments { get; set; }
@@ -13,15 +16,19 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<WorkItemState>().Property(s => s.Value).IsRequired().HasMaxLength(50);
+        modelBuilder.Entity<Epic>().Property(wi => wi.EndDate).HasPrecision(3);
+
+        modelBuilder.Entity<Issue>().Property(wi => wi.Effort).HasColumnType("decimal(5,2)");
+
+        modelBuilder.Entity<Task>(eb =>
+        {
+            eb.Property(wi => wi.Activity).HasMaxLength(200);
+            eb.Property(wi => wi.RemainingWork).HasPrecision(14, 2);
+        });
 
         modelBuilder.Entity<WorkItem>(eb =>
         {
             eb.Property(wi => wi.Area).HasMaxLength(200);
-            eb.Property(wi => wi.Effort).HasPrecision(5, 2);
-            eb.Property(wi => wi.EndDate).HasPrecision(3);
-            eb.Property(wi => wi.Activity).HasMaxLength(200);
-            eb.Property(wi => wi.RemainingWork).HasPrecision(14, 2);
             eb.Property(wi => wi.Priority).HasDefaultValue(1);
             eb.HasOne(wi => wi.WorkItemState).WithMany().HasForeignKey(wi => wi.WorkItemStateId);
             eb.HasMany(wi => wi.Comments).WithOne(c => c.WorkItem).HasForeignKey(c => c.WorkItemId);
@@ -41,6 +48,8 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
                     }
                 );
         });
+
+        modelBuilder.Entity<WorkItemState>().Property(s => s.Value).IsRequired().HasMaxLength(50);
 
         modelBuilder.Entity<Comment>(eb =>
         {
