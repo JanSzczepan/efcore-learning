@@ -20,4 +20,8 @@ public class WorkItem
     public decimal RemainingWork { get; set; }
 
     public string Type { get; set; }
+
+    public List<Comment> Comments { get; set; } = [ ];
+    public User Author { get; set; }
+    public Guid AuthorId { get; set; }
 }
