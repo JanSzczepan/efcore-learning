@@ -3,7 +3,6 @@
 public class WorkItem
 {
     public int Id { get; set; }
-    public string State { get; set; }
     public string Area { get; set; }
     public string IterationPath { get; set; }
     public int Priority { get; set; }
@@ -21,6 +20,8 @@ public class WorkItem
 
     public string Type { get; set; }
 
+    public WorkItemState WorkItemState { get; set; }
+    public int WorkItemStateId { get; set; }
     public List<Comment> Comments { get; set; } = [ ];
     public User Author { get; set; }
     public Guid AuthorId { get; set; }

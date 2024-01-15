@@ -9,18 +9,21 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Address> Addresses { get; set; }
+    public DbSet<WorkItemState> WorkItemStates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<WorkItemState>().Property(s => s.Value).IsRequired().HasMaxLength(50);
+
         modelBuilder.Entity<WorkItem>(eb =>
         {
-            eb.Property(wi => wi.State).IsRequired();
             eb.Property(wi => wi.Area).HasMaxLength(200);
             eb.Property(wi => wi.Effort).HasPrecision(5, 2);
             eb.Property(wi => wi.EndDate).HasPrecision(3);
             eb.Property(wi => wi.Activity).HasMaxLength(200);
             eb.Property(wi => wi.RemainingWork).HasPrecision(14, 2);
             eb.Property(wi => wi.Priority).HasDefaultValue(1);
+            eb.HasOne(wi => wi.WorkItemState).WithMany().HasForeignKey(wi => wi.WorkItemStateId);
             eb.HasMany(wi => wi.Comments).WithOne(c => c.WorkItem).HasForeignKey(c => c.WorkItemId);
             eb.HasOne(wi => wi.Author).WithMany(u => u.WorkItems).HasForeignKey(wi => wi.AuthorId);
             eb.HasMany(wi => wi.Tags)
