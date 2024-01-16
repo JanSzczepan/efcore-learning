@@ -12,8 +12,8 @@ using MyBoards.Entities;
 namespace MyBoards.Migrations
 {
     [DbContext(typeof(MyBoardsContext))]
-    [Migration("20240116193414_TagSeed")]
-    partial class TagSeed
+    [Migration("20240116205034_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -141,10 +141,7 @@ namespace MyBoards.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
+                    b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -161,8 +158,7 @@ namespace MyBoards.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Area")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
@@ -173,21 +169,22 @@ namespace MyBoards.Migrations
                         .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("IterationPath")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Iteration_Path");
 
                     b.Property<int>("Priority")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.Property<int>("WorkItemStateId")
+                    b.Property<int>("StateId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("WorkItemStateId");
+                    b.HasIndex("StateId");
 
                     b.ToTable("WorkItems");
 
@@ -206,8 +203,8 @@ namespace MyBoards.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.HasKey("Id");
 
@@ -269,7 +266,7 @@ namespace MyBoards.Migrations
                 {
                     b.HasBaseType("MyBoards.Entities.WorkItem");
 
-                    b.Property<decimal>("Effort")
+                    b.Property<decimal>("Efford")
                         .HasColumnType("decimal(5,2)");
 
                     b.HasDiscriminator().HasValue("Issue");
@@ -283,7 +280,7 @@ namespace MyBoards.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<decimal>("RemainingWork")
+                    b.Property<decimal>("RemaningWork")
                         .HasPrecision(14, 2)
                         .HasColumnType("decimal(14,2)");
 
@@ -328,15 +325,15 @@ namespace MyBoards.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyBoards.Entities.WorkItemState", "WorkItemState")
+                    b.HasOne("MyBoards.Entities.WorkItemState", "State")
                         .WithMany()
-                        .HasForeignKey("WorkItemStateId")
+                        .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Author");
 
-                    b.Navigation("WorkItemState");
+                    b.Navigation("State");
                 });
 
             modelBuilder.Entity("MyBoards.Entities.WorkItemTag", b =>

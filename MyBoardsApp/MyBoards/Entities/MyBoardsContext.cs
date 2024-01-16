@@ -16,24 +16,29 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<WorkItemState>().Property(s => s.Value).IsRequired().HasMaxLength(60);
+
         modelBuilder.Entity<Epic>().Property(wi => wi.EndDate).HasPrecision(3);
 
-        modelBuilder.Entity<Issue>().Property(wi => wi.Effort).HasColumnType("decimal(5,2)");
+        modelBuilder.Entity<Task>().Property(wi => wi.Activity).HasMaxLength(200);
 
-        modelBuilder.Entity<Task>(eb =>
-        {
-            eb.Property(wi => wi.Activity).HasMaxLength(200);
-            eb.Property(wi => wi.RemainingWork).HasPrecision(14, 2);
-        });
+        modelBuilder.Entity<Task>().Property(wi => wi.RemaningWork).HasPrecision(14, 2);
+
+        modelBuilder.Entity<Issue>().Property(wi => wi.Efford).HasColumnType("decimal(5,2)");
 
         modelBuilder.Entity<WorkItem>(eb =>
         {
-            eb.Property(wi => wi.Area).HasMaxLength(200);
+            eb.HasOne(w => w.State).WithMany().HasForeignKey(w => w.StateId);
+
+            eb.Property(x => x.Area).HasColumnType("varchar(200)");
+            eb.Property(wi => wi.IterationPath).HasColumnName("Iteration_Path");
+
             eb.Property(wi => wi.Priority).HasDefaultValue(1);
-            eb.HasOne(wi => wi.WorkItemState).WithMany().HasForeignKey(wi => wi.WorkItemStateId);
-            eb.HasMany(wi => wi.Comments).WithOne(c => c.WorkItem).HasForeignKey(c => c.WorkItemId);
-            eb.HasOne(wi => wi.Author).WithMany(u => u.WorkItems).HasForeignKey(wi => wi.AuthorId);
-            eb.HasMany(wi => wi.Tags)
+            eb.HasMany(w => w.Comments).WithOne(c => c.WorkItem).HasForeignKey(c => c.WorkItemId);
+
+            eb.HasOne(w => w.Author).WithMany(u => u.WorkItems).HasForeignKey(w => w.AuthorId);
+
+            eb.HasMany(w => w.Tags)
                 .WithMany(t => t.WorkItems)
                 .UsingEntity<WorkItemTag>(
                     w => w.HasOne(wit => wit.Tag).WithMany().HasForeignKey(wit => wit.TagId),
@@ -49,12 +54,10 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
                 );
         });
 
-        modelBuilder.Entity<WorkItemState>().Property(s => s.Value).IsRequired().HasMaxLength(50);
-
         modelBuilder.Entity<Comment>(eb =>
         {
-            eb.Property(wi => wi.CreatedDate).HasDefaultValueSql("getutcdate()");
-            eb.Property(wi => wi.UpdatedDate).ValueGeneratedOnUpdate();
+            eb.Property(x => x.CreatedDate).HasDefaultValueSql("getutcdate()");
+            eb.Property(x => x.UpdatedDate).ValueGeneratedOnUpdate();
             eb.HasOne(c => c.Author)
                 .WithMany(a => a.Comments)
                 .HasForeignKey(c => c.AuthorId)
@@ -70,19 +73,19 @@ public class MyBoardsContext(DbContextOptions<MyBoardsContext> options) : DbCont
         modelBuilder
             .Entity<WorkItemState>()
             .HasData(
-                new WorkItemState { Id = 1, Value = "To Do" },
-                new WorkItemState { Id = 2, Value = "Doing" },
-                new WorkItemState { Id = 3, Value = "Done" }
+                new WorkItemState() { Id = 1, Value = "To Do" },
+                new WorkItemState() { Id = 2, Value = "Doing" },
+                new WorkItemState() { Id = 3, Value = "Done" }
             );
 
         modelBuilder
             .Entity<Tag>()
             .HasData(
-                new Tag { Id = 1, Value = "Web" },
-                new Tag { Id = 2, Value = "UI" },
-                new Tag { Id = 3, Value = "Desktop" },
-                new Tag { Id = 4, Value = "API" },
-                new Tag { Id = 5, Value = "Service" }
+                new Tag() { Id = 1, Value = "Web" },
+                new Tag() { Id = 2, Value = "UI" },
+                new Tag() { Id = 3, Value = "Desktop" },
+                new Tag() { Id = 4, Value = "API" },
+                new Tag() { Id = 5, Value = "Service" }
             );
     }
 }

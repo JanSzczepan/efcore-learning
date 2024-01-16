@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace MyBoards.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,8 +31,7 @@ namespace MyBoards.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -44,7 +45,7 @@ namespace MyBoards.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Value = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Value = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,17 +80,17 @@ namespace MyBoards.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Area = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    IterationPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StateId = table.Column<int>(type: "int", nullable: false),
+                    Area = table.Column<string>(type: "varchar(200)", nullable: true),
+                    Iteration_Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Priority = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    WorkItemStateId = table.Column<int>(type: "int", nullable: false),
                     AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime2(3)", precision: 3, nullable: true),
-                    Effort = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    Efford = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
                     Activity = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    RemainingWork = table.Column<decimal>(type: "decimal(14,2)", precision: 14, scale: 2, nullable: true)
+                    RemaningWork = table.Column<decimal>(type: "decimal(14,2)", precision: 14, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -101,8 +102,8 @@ namespace MyBoards.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WorkItems_WorkItemStates_WorkItemStateId",
-                        column: x => x.WorkItemStateId,
+                        name: "FK_WorkItems_WorkItemStates_StateId",
+                        column: x => x.StateId,
                         principalTable: "WorkItemStates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -115,7 +116,7 @@ namespace MyBoards.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Author = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getutcdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     WorkItemId = table.Column<int>(type: "int", nullable: false)
@@ -123,6 +124,11 @@ namespace MyBoards.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_Users_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_WorkItems_WorkItemId",
                         column: x => x.WorkItemId,
@@ -156,11 +162,38 @@ namespace MyBoards.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Tags",
+                columns: new[] { "Id", "Value" },
+                values: new object[,]
+                {
+                    { 1, "Web" },
+                    { 2, "UI" },
+                    { 3, "Desktop" },
+                    { 4, "API" },
+                    { 5, "Service" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "WorkItemStates",
+                columns: new[] { "Id", "Value" },
+                values: new object[,]
+                {
+                    { 1, "To Do" },
+                    { 2, "Doing" },
+                    { 3, "Done" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_UserId",
                 table: "Addresses",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_AuthorId",
+                table: "Comments",
+                column: "AuthorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_WorkItemId",
@@ -173,9 +206,9 @@ namespace MyBoards.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkItems_WorkItemStateId",
+                name: "IX_WorkItems_StateId",
                 table: "WorkItems",
-                column: "WorkItemStateId");
+                column: "StateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkItemTag_WorkItemId",
