@@ -114,7 +114,6 @@ app.MapGet(
             .Include(u => u.Address)
             .FirstAsync(u => u.Id == Guid.Parse("68366DBE-0809-490F-CC1D-08DA10AB0E61"));
 
-        //var userComments = await db.Comments.Where(c => c.AuthorId == user.Id).ToListAsync();
         return user;
     }
 );
@@ -150,6 +149,21 @@ app.MapPost(
         db.Users.Add(user);
         await db.SaveChangesAsync();
         return user;
+    }
+);
+
+app.MapDelete(
+    "delete",
+    async (MyBoardsContext db) =>
+    {
+        var user = await db.Users.FirstAsync(
+            u => u.Id == Guid.Parse("DC231ACF-AD3C-445D-CC08-08DA10AB0E61")
+        );
+        var userComments = db.Comments.Where(c => c.AuthorId == user.Id).ToList();
+        db.RemoveRange(userComments);
+        await db.SaveChangesAsync();
+        db.Users.Remove(user);
+        await db.SaveChangesAsync();
     }
 );
 
