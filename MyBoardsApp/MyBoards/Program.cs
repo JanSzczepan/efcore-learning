@@ -38,15 +38,13 @@ if (!users.Any())
     var user1 = new User()
     {
         Email = "user1@test.com",
-        FirstName = "User",
-        LastName = "One",
+        FullName = "User One",
         Address = new Address() { City = "Las", Street = "Dzika" }
     };
     var user2 = new User()
     {
         Email = "user2@test.com",
-        FirstName = "User",
-        LastName = "Two",
+        FullName = "User Two",
         Address = new Address() { City = "Puszcza", Street = "Niebezpieczna" }
     };
 
