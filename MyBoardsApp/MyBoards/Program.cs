@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyBoards.Entities;
 
@@ -5,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder
+    .Services
+    .Configure<JsonOptions>(options =>
+    {
+        options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    });
 
 builder
     .Services
@@ -104,6 +113,28 @@ app.MapPost(
         epic.State = doingState;
         await db.SaveChangesAsync();
         return epic;
+    }
+);
+
+app.MapPost(
+    "create1",
+    async (MyBoardsContext db) =>
+    {
+        var address = new Address()
+        {
+            City = "Kraków",
+            Country = "Poland",
+            Street = "D³uga"
+        };
+        var user = new User()
+        {
+            Email = "user@test.com",
+            FullName = "Test User",
+            Address = address,
+        };
+        db.Users.Add(user);
+        await db.SaveChangesAsync();
+        return user;
     }
 );
 
