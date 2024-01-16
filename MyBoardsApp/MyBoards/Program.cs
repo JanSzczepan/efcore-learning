@@ -118,6 +118,15 @@ app.MapGet(
     }
 );
 
+app.MapGet(
+    "data5",
+    async (MyBoardsContext db) =>
+    {
+        var states = db.WorkItemStates.AsNoTracking().ToList();
+        return states;
+    }
+);
+
 app.MapPost(
     "update1",
     async (MyBoardsContext db) =>
