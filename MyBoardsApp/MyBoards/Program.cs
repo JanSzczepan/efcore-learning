@@ -95,4 +95,16 @@ app.MapGet(
     }
 );
 
+app.MapPost(
+    "update1",
+    async (MyBoardsContext db) =>
+    {
+        var epic = await db.Epics.FirstAsync(e => e.Id == 2);
+        var doingState = await db.WorkItemStates.FirstAsync(s => s.Value == "Doing");
+        epic.State = doingState;
+        await db.SaveChangesAsync();
+        return epic;
+    }
+);
+
 app.Run();
