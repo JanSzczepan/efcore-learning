@@ -55,7 +55,7 @@ if (!users.Any())
 }
 
 app.MapGet(
-    "data",
+    "data1",
     async (MyBoardsContext db) =>
     {
         var statesCount = await db.WorkItems
@@ -64,6 +64,34 @@ app.MapGet(
             .ToListAsync();
 
         return statesCount;
+    }
+);
+
+app.MapGet(
+    "data2",
+    async (MyBoardsContext db) =>
+    {
+        var selectedEpics = await db.Epics
+            .Where(e => e.StateId == 1)
+            .OrderBy(e => e.Priority)
+            .ToListAsync();
+        return selectedEpics;
+    }
+);
+
+app.MapGet(
+    "data3",
+    async (MyBoardsContext db) =>
+    {
+        var authorsCommentCounts = await db.Comments
+            .GroupBy(c => c.AuthorId)
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToListAsync();
+        var topAuthor = authorsCommentCounts.First(
+            a => a.Count == authorsCommentCounts.Max(acc => acc.Count)
+        );
+        var userDetails = db.Users.First(u => u.Id == topAuthor.Key);
+        return new { userDetails, commentCount = topAuthor.Count };
     }
 );
 
