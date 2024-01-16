@@ -12,7 +12,7 @@ builder
     .Services
     .Configure<JsonOptions>(options =>
     {
-        options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
 builder
@@ -101,6 +101,21 @@ app.MapGet(
         );
         var userDetails = db.Users.First(u => u.Id == topAuthor.Key);
         return new { userDetails, commentCount = topAuthor.Count };
+    }
+);
+
+app.MapGet(
+    "data4",
+    async (MyBoardsContext db) =>
+    {
+        var user = await db.Users
+            .Include(u => u.Comments)
+            .ThenInclude(c => c.WorkItem)
+            .Include(u => u.Address)
+            .FirstAsync(u => u.Id == Guid.Parse("68366DBE-0809-490F-CC1D-08DA10AB0E61"));
+
+        //var userComments = await db.Comments.Where(c => c.AuthorId == user.Id).ToListAsync();
+        return user;
     }
 );
 
